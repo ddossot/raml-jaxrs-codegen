@@ -108,11 +108,11 @@ public class Generator
     {
         final String ramlBuffer = IOUtils.toString(ramlReader);
 
-        final List<ValidationResult> results = RamlValidationService.createDefault().validate(ramlBuffer, "");
+        final List<ValidationResult> results = RamlValidationService.createDefault().validate(ramlBuffer);
 
         if (ValidationResult.areValid(results))
         {
-            return run(new RamlDocumentBuilder().build(ramlBuffer, ""), configuration);
+            return run(new RamlDocumentBuilder().build(ramlBuffer), configuration);
         }
         else
         {
@@ -189,7 +189,7 @@ public class Generator
     {
         for (final Action action : resource.getActions().values())
         {
-            if (!action.hasBody())
+            if (action.getBody() == null || action.getBody().isEmpty())
             {
                 addResourceMethods(resourceInterface, resourceInterfacePath, action, null, false);
             }
@@ -300,7 +300,7 @@ public class Generator
         final int statusCode = NumberUtils.toInt(statusCodeAndResponse.getKey());
         final Response response = statusCodeAndResponse.getValue();
 
-        if (!response.hasBody())
+        if (response.getBody() == null || response.getBody().isEmpty())
         {
             createResponseBuilderInResourceMethodReturnType(responseClass, statusCode, response, null);
         }
@@ -455,7 +455,7 @@ public class Generator
         final Map<String, MimeType> responseMimeTypes = new HashMap<String, MimeType>();
         for (final Response response : action.getResponses().values())
         {
-            if (response.hasBody())
+            if (response.getBody() == null || response.getBody().isEmpty())
             {
                 for (final MimeType responseMimeType : response.getBody().values())
                 {
@@ -646,13 +646,18 @@ public class Generator
             }
         }
 
-        final BigDecimal minimum = parameter.getMinimum();
+        final BigDecimal minimum = parameter.getMinimum() == null
+                                                                 ? null
+                                                                 : BigDecimal.valueOf(parameter.getMinimum());
         if (minimum != null)
         {
             addMinMaxConstraint(parameter, "minimum", Min.class, minimum, argumentVariable);
         }
 
-        final BigDecimal maximum = parameter.getMinimum();
+        final BigDecimal maximum = parameter.getMaximum() == null
+                                                                 ? null
+                                                                 : BigDecimal.valueOf(parameter.getMaximum());
+
         if (maximum != null)
         {
             addMinMaxConstraint(parameter, "maximum", Max.class, maximum, argumentVariable);
