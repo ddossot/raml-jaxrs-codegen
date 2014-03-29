@@ -455,7 +455,7 @@ public class Generator
         final Map<String, MimeType> responseMimeTypes = new HashMap<String, MimeType>();
         for (final Response response : action.getResponses().values())
         {
-            if (response.getBody() == null || response.getBody().isEmpty())
+            if (response.getBody() != null && !response.getBody().isEmpty())
             {
                 for (final MimeType responseMimeType : response.getBody().values())
                 {
